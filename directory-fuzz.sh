@@ -23,10 +23,17 @@ url_validation(){
     target_url=$1
     for dir in "${directories[@]}"; do
         status_code=$(curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --head "$target_url$dir")
-        if [[ ! "$status_code" =~ ^4|^5 ]]; then
-            echo -e "${GREEN}Code: $status_code${GREENF} ${BLUE}--- SUCCESSFUL ---${BLUEF} $target_url$dir"
-        else
+        if [[ "$status_code" == "000" ]]; then
+            echo -e "${RED}ERROR${REDF} ${YELLOW}You are trying to execute this tool in an incompatible environment. It is probable that you do not have a compatible curl version.${YELLOWF}"
+            echo ""
+            echo -e "${PURPLE}Current curl version: ${PURPLEF}"
+            curl --version
+            sleep 1
+            exit 1
+        elif [[ "$status_code" =~ ^(4|5) ]]; then
             echo -e "${RED}Code: $status_code${REDF} ${BLUE}--- ERROR ---${BLUEF} $target_url$dir"
+        else
+            echo -e "${GREEN}Code: $status_code${GREENF} ${BLUE}--- SUCCESSFUL ---${BLUEF} $target_url$dir"
         fi
         sleep 1 ### Delay between requests in order to not alert the server, WAF or any other security measure
     done
