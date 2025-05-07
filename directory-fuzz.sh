@@ -18,17 +18,23 @@ url_validation(){
     ############ -w "%{http_code}" Use just HTTP Code to see available resources
     ############ -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" This emulates another user-agent, in order to not be treated as a bot.
     ############ --head Just head request, not body needed
-    echo "curl -s -o /dev/null -w \"%{http_code}\" -A \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\" --head \"$1\""
-
+    ############ ----> echo "curl -s -o /dev/null -w \"%{http_code}\" -A \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\" --head \"$url\""
+    target_url=$1
     for dir in "${directories[@]}"; do
-        echo "$dir"
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --head "$target_url$dir")
+        if [[ ! "$status_code" =~ ^4|^5 ]]; then
+            echo -e "${GREEN}Code: $status_code${GREENF} ${BLUE}--- SUCCESSFUL --- $target_url$dir${BLUEF}"
+        else
+            echo -e "${RED}Code: $status_code${REDF} ${BLUE}--- ERROR --- $target_url$dir${BLUEF}"
+        fi
+        sleep 1 ### Delay between requests in order to not alert the server, WAF or any other security measure
     done
 }
 
 wordlist_validation(){
     if [ ${#directories[@]} -eq 0 ]; then
-        echo "Please follow the command structure:"
-        echo "----> ./directory-fuzz.sh -w <WORDLIST> -u <TARGET_URL>"
+        echo -e "${PURPLE}Please follow the command structure:${PURPLEF}"
+        echo -e "${PURPLE}----> ./directory-fuzz.sh -w <WORDLIST> -u <TARGET_URL>${PURPLEF}"
         exit 1
     fi
 }
