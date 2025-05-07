@@ -18,7 +18,28 @@ url_validation(){
     ############ -w "%{http_code}" Use just HTTP Code to see available resources
     ############ -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" This emulates another user-agent, in order to not be treated as a bot.
     ############ --head Just head request, not body needed
-    curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --head "$1"
+    echo "curl -s -o /dev/null -w \"%{http_code}\" -A \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\" --head \"$1\""
+
+    for dir in "${directories[@]}"; do
+        echo "$dir"
+    done
+}
+
+wordlist_validation(){
+    if [ ${#directories[@]} -eq 0 ]; then
+        echo "Please follow the command structure:"
+        echo "----> ./directory-fuzz.sh -w <WORDLIST> -u <TARGET_URL>"
+        exit 1
+    fi
+}
+
+tool_manual(){
+    echo -e "${PURPLE}For use this tool, you can use the following command structure:${PURPLEF}"
+    echo ""
+    echo -e "${PURPLE}---> Command: ./directory-fuzz.sh -w <WORDLIST> -u <TARGET_URL> ${PURPLEF}"
+    echo -e "${PURPLE}---> Example: ./directory-fuzz.sh -w ./wordlist.txt -u https://www.example.com/product/${PURPLEF}"
+    sleep 2
+    exit 0
 }
 
 file_reading(){
@@ -29,29 +50,20 @@ file_reading(){
 }
 
 main(){
-    while getopts ":u:w:m" option; do
+    while getopts ":w:u:m" option; do
         case $option in
-            u) 
-                target_url="$OPTARG"
-                if [ ${#directories[@]} -eq 0 ]; then
-                    echo "Please specify a wordlist with -w first."
-                    exit 1
-                fi
-                for dir in "${directories[@]}"; do
-                    echo ">$dir<"
-                done
-            ;;
             w)
                 wordlist_path="$OPTARG"
                 directories=()
                 file_reading "$wordlist_path"
             ;;
+            u) 
+                target_url="$OPTARG"
+                wordlist_validation
+                url_validation $target_url
+            ;;
             m)
-                echo -e "${PURPLE}For use this tool, you can use the following command structure:${PURPLEF}"
-                echo ""
-                echo -e "${PURPLE}---> Command: ./directory-fuzz.sh -w <WORDLIST> -u <TARGET_URL> ${PURPLEF}"
-                echo -e "${PURPLE}---> Example: ./directory-fuzz.sh -w ./wordlist.txt -u https://www.example.com/product/${PURPLEF}"
-                exit 0
+                tool_manual
             ;;
             \?)
                 echo -e "${RED}Unknown option: -$OPTARG${REDF}" >&2
