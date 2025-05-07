@@ -24,4 +24,4 @@ Kind regards,
 
 Angel
 
-## PD: More cybersecurity bash tools soon :)...
+## PD: More cybersecurity bash tools soon :)
