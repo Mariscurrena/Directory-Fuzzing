@@ -8,6 +8,7 @@ GREEN="\033[30;42m"; GREENF="\033[0m"
 BLUE="\033[34m"; BLUEF="\033[0m"
 RED="\033[31;40m"; REDF="\033[0m"
 PURPLE="\033[35m"; PURPLEF="\033[0m"
+YELLOW="\033[33m"; YELLOWF="\033[0m"
 
 declare -a directories
 
@@ -23,9 +24,9 @@ url_validation(){
     for dir in "${directories[@]}"; do
         status_code=$(curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --head "$target_url$dir")
         if [[ ! "$status_code" =~ ^4|^5 ]]; then
-            echo -e "${GREEN}Code: $status_code${GREENF} ${BLUE}--- SUCCESSFUL --- $target_url$dir${BLUEF}"
+            echo -e "${GREEN}Code: $status_code${GREENF} ${BLUE}--- SUCCESSFUL ---${BLUEF} $target_url$dir"
         else
-            echo -e "${RED}Code: $status_code${REDF} ${BLUE}--- ERROR --- $target_url$dir${BLUEF}"
+            echo -e "${RED}Code: $status_code${REDF} ${BLUE}--- ERROR ---${BLUEF} $target_url$dir"
         fi
         sleep 1 ### Delay between requests in order to not alert the server, WAF or any other security measure
     done
@@ -55,6 +56,24 @@ file_reading(){
     done < "$1"
 }
 
+initial_message(){
+    echo -e "${BLUE}##############################################"
+    echo -e "${BLUE}#                                            #"
+    echo -e "${BLUE}#           ${BLUE}WEB DIRECTORY FUZZING            #"
+    echo -e "${BLUE}#                                            #"
+    echo -e "${BLUE}##############################################"
+    echo ""
+    echo -e "${YELLOW}Author: Angel Mariscurrena"
+    echo ""
+    echo -e "${YELLOW}Description: ${YELLOWF}This tool is designed for web directory fuzzing. Helps security engineers and penetration testers discover hidden directories, files, and resources within a website. By sending a series of requests to a target URL with various combinations of paths from a word list, this tool helps identify valid endpoints that may not be publicly visible or hidden behind access controls."
+    echo ""
+    sleep 2
+    echo -e "${BLUE}TARGET URL${BLUEF}: $1"
+    echo ""
+    echo -e "${BLUE}---> RESULTS: ${BLUEF}"
+    echo ""
+}
+
 main(){
     while getopts ":w:u:m" option; do
         case $option in
@@ -65,8 +84,10 @@ main(){
             ;;
             u) 
                 target_url="$OPTARG"
+                initial_message $target_url
                 wordlist_validation
                 url_validation $target_url
+                echo ""
             ;;
             m)
                 tool_manual
