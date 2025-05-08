@@ -70,7 +70,7 @@ initial_message(){
     echo -e "${BLUE}#                                            #"
     echo -e "${BLUE}##############################################"
     echo ""
-    echo -e "${YELLOW}Author: Angel Mariscurrena"
+    echo -e "${YELLOW}Author:${YELLOWF} Angel Mariscurrena"
     echo ""
     echo -e "${YELLOW}Description: ${YELLOWF}This tool is designed for web directory fuzzing. Helps security engineers and penetration testers discover hidden directories, files, and resources within a website. By sending a series of requests to a target URL with various combinations of paths from a word list, this tool helps identify valid endpoints that may not be publicly visible or hidden behind access controls."
     echo ""
